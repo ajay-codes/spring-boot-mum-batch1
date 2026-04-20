@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTGO - My Deliveries</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        .header { background: #8e44ad; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header a { color: white; text-decoration: none; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        h2 { color: #2c3e50; margin-bottom: 15px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { color: #8e44ad; text-decoration: none; margin-right: 15px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #555; font-weight: 600; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; color: white; margin: 2px; }
+        .btn-pickup { background: #f39c12; }
+        .btn-deliver { background: #27ae60; }
+        .status { padding: 4px 10px; border-radius: 12px; font-size: 0.8em; color: white; }
+        .ASSIGNED { background: #3498db; }
+        .PICKED_UP { background: #9b59b6; }
+        .DELIVERED { background: #27ae60; }
+        .PENDING { background: #95a5a6; }
+        .empty { text-align: center; padding: 40px; color: #999; background: white; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><a href="/">FTGO</a> - Courier Portal</h1>
+        <a th:href="@{'/courier/available?courierId=' + ${courierId}}">Available Deliveries</a>
+    </div>
+    <div class="container">
+        <div class="nav">
+            <a th:href="@{'/courier/available?courierId=' + ${courierId}}">Available Deliveries</a>
+            <a th:href="@{'/courier/my-deliveries?courierId=' + ${courierId}}">My Deliveries</a>
+        </div>
+        <h2>My Deliveries</h2>
+
+        <div th:if="${deliveries.isEmpty()}" class="empty">
+            <p>No active deliveries. <a th:href="@{'/courier/available?courierId=' + ${courierId}}">Check available deliveries</a>.</p>
+        </div>
+
+        <table th:if="${!deliveries.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Delivery #</th>
+                    <th>Order #</th>
+                    <th>Restaurant</th>
+                    <th>Delivery Address</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="delivery : ${deliveries}">
+                    <td th:text="${delivery.id}">#</td>
+                    <td th:text="${delivery.foodOrder.id}">Order</td>
+                    <td th:text="${delivery.foodOrder.restaurant.name}">Restaurant</td>
+                    <td th:text="${delivery.foodOrder.deliveryAddress}">Address</td>
+                    <td th:text="'Rs.' + ${delivery.foodOrder.totalAmount}">Amount</td>
+                    <td><span class="status" th:classappend="${delivery.status}" th:text="${delivery.status}">Status</span></td>
+                    <td>
+                        <div th:switch="${delivery.status.name()}">
+                            <div th:case="'ASSIGNED'">
+                                <form th:action="@{'/courier/pickup/' + ${delivery.id}}" method="post" style="display:inline">
+                                    <input type="hidden" name="courierId" th:value="${courierId}" />
+                                    <button type="submit" class="btn btn-pickup">Picked Up</button>
+                                </form>
+                            </div>
+                            <div th:case="'PICKED_UP'">
+                                <form th:action="@{'/courier/deliver/' + ${delivery.id}}" method="post" style="display:inline">
+                                    <input type="hidden" name="courierId" th:value="${courierId}" />
+                                    <button type="submit" class="btn btn-deliver">Delivered</button>
+                                </form>
+                            </div>
+                            <div th:case="*">
+                                <span style="color:#27ae60; font-weight:bold;">Completed</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTGO - Manage Menu</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        .header { background: #e67e22; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header a { color: white; text-decoration: none; }
+        .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
+        h2 { color: #2c3e50; margin-bottom: 15px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { color: #e67e22; text-decoration: none; margin-right: 15px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #555; font-weight: 600; }
+        .btn { padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; color: white; }
+        .btn-toggle { background: #3498db; }
+        .btn-add { background: #e67e22; padding: 8px 20px; }
+        .available { color: #27ae60; font-weight: bold; }
+        .unavailable { color: #e74c3c; font-weight: bold; }
+        .add-form { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; gap: 10px; align-items: end; }
+        .add-form label { font-size: 0.85em; color: #555; display: block; margin-bottom: 3px; }
+        .add-form input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><a href="/">FTGO</a> - Restaurant Portal</h1>
+        <span th:text="${restaurant.name}">Restaurant</span>
+    </div>
+    <div class="container">
+        <div class="nav">
+            <a th:href="@{'/restaurant/' + ${restaurant.id} + '/menu'}">Manage Menu</a>
+            <a th:href="@{'/restaurant/' + ${restaurant.id} + '/orders'}">View Orders</a>
+        </div>
+        <h2>Menu Management - <span th:text="${restaurant.name}">Restaurant</span></h2>
+
+        <form th:action="@{'/restaurant/' + ${restaurant.id} + '/menu'}" method="post" class="add-form">
+            <div>
+                <label>Item Name</label>
+                <input type="text" name="name" placeholder="e.g. Paneer Tikka" required />
+            </div>
+            <div>
+                <label>Price (Rs.)</label>
+                <input type="number" name="price" step="0.01" placeholder="250" required />
+            </div>
+            <button type="submit" class="btn btn-add">Add Item</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr><th>#</th><th>Item Name</th><th>Price</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="item, stat : ${menuItems}">
+                    <td th:text="${stat.count}">1</td>
+                    <td th:text="${item.name}">Item</td>
+                    <td th:text="'Rs.' + ${item.price}">Price</td>
+                    <td>
+                        <span th:if="${item.available}" class="available">Available</span>
+                        <span th:if="${!item.available}" class="unavailable">Unavailable</span>
+                    </td>
+                    <td>
+                        <form th:action="@{'/restaurant/menu/' + ${item.id} + '/toggle'}" method="post" style="display:inline">
+                            <input type="hidden" name="restaurantId" th:value="${restaurant.id}" />
+                            <button type="submit" class="btn btn-toggle"
+                                    th:text="${item.available} ? 'Mark Unavailable' : 'Mark Available'">Toggle</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

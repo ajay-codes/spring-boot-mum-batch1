@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTGO - Browse Restaurants</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        .header { background: #27ae60; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header a { color: white; text-decoration: none; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        h2 { color: #2c3e50; margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .card h3 { color: #27ae60; margin-bottom: 5px; }
+        .card p { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.85em; }
+        th { background: #f8f8f8; color: #555; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; color: white; }
+        .btn-order { background: #27ae60; }
+        .btn-order:hover { background: #219a52; }
+        form { margin-top: 10px; }
+        input[type="number"] { width: 50px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center; }
+        input[type="text"] { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 3px; margin-top: 5px; }
+        label { font-size: 0.85em; color: #555; }
+        .nav { margin-bottom: 20px; }
+        .nav a { color: #27ae60; text-decoration: none; margin-right: 15px; font-weight: bold; }
+        .check { width: 16px; height: 16px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><a href="/">FTGO</a> - Consumer Portal</h1>
+        <a href="/consumer/orders?consumerId=1">My Orders</a>
+    </div>
+    <div class="container">
+        <div class="nav">
+            <a href="/consumer/restaurants">Browse Restaurants</a>
+            <a href="/consumer/orders?consumerId=1">My Orders</a>
+        </div>
+        <h2>Browse Restaurants</h2>
+        <div class="grid">
+            <div th:each="restaurant : ${restaurants}" class="card">
+                <h3 th:text="${restaurant.name}">Restaurant Name</h3>
+                <p th:text="${restaurant.address}">Address</p>
+                <p th:text="'Phone: ' + ${restaurant.phone}">Phone</p>
+
+                <form th:action="@{/consumer/orders}" method="post">
+                    <input type="hidden" name="consumerId" value="1" />
+                    <input type="hidden" name="restaurantId" th:value="${restaurant.id}" />
+
+                    <table>
+                        <thead>
+                            <tr><th>Select</th><th>Item</th><th>Price</th><th>Qty</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${restaurant.menuItems}" th:if="${item.available}">
+                                <td>
+                                    <input type="checkbox" class="check"
+                                           th:attr="onchange='toggleItem(this, ' + ${item.id} + ')'" />
+                                </td>
+                                <td th:text="${item.name}">Item</td>
+                                <td th:text="'Rs.' + ${item.price}">Price</td>
+                                <td>
+                                    <input type="number" min="1" value="1"
+                                           th:id="'qty_' + ${item.id}" disabled="disabled" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div id="selectedItems"></div>
+
+                    <label>Delivery Address:</label>
+                    <input type="text" name="deliveryAddress" placeholder="Enter delivery address" required />
+                    <br/><br/>
+                    <button type="submit" class="btn btn-order">Place Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleItem(checkbox, itemId) {
+            var qtyInput = document.getElementById('qty_' + itemId);
+            var form = checkbox.closest('form');
+            if (checkbox.checked) {
+                qtyInput.disabled = false;
+                var hiddenId = document.createElement('input');
+                hiddenId.type = 'hidden'; hiddenId.name = 'menuItemIds'; hiddenId.value = itemId;
+                hiddenId.id = 'hidden_id_' + itemId;
+                form.appendChild(hiddenId);
+                var hiddenQty = document.createElement('input');
+                hiddenQty.type = 'hidden'; hiddenQty.name = 'quantities';
+                hiddenQty.id = 'hidden_qty_' + itemId;
+                hiddenQty.value = qtyInput.value;
+                form.appendChild(hiddenQty);
+                qtyInput.onchange = function() { hiddenQty.value = qtyInput.value; };
+            } else {
+                qtyInput.disabled = true;
+                var el1 = document.getElementById('hidden_id_' + itemId);
+                var el2 = document.getElementById('hidden_qty_' + itemId);
+                if (el1) el1.remove();
+                if (el2) el2.remove();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTGO - Food To Go</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        .header { background: #2c3e50; color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 2em; }
+        .header p { color: #bdc3c7; margin-top: 5px; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: white; border-radius: 10px; padding: 30px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card h2 { color: #2c3e50; margin-bottom: 10px; }
+        .card p { color: #7f8c8d; margin-bottom: 20px; font-size: 0.9em; }
+        .card a { display: inline-block; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; margin: 5px; font-size: 0.85em; }
+        .card a:hover { background: #2980b9; }
+        .card.consumer { border-top: 4px solid #27ae60; }
+        .card.consumer a { background: #27ae60; }
+        .card.restaurant { border-top: 4px solid #e67e22; }
+        .card.restaurant a { background: #e67e22; }
+        .card.courier { border-top: 4px solid #8e44ad; }
+        .card.courier a { background: #8e44ad; }
+        .arch { margin-top: 40px; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .arch h3 { color: #2c3e50; margin-bottom: 10px; }
+        .arch ul { list-style: none; padding: 0; }
+        .arch li { padding: 5px 0; color: #555; border-bottom: 1px solid #eee; }
+        .arch li:last-child { border-bottom: none; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.75em; color: white; margin-right: 8px; }
+        .badge.green { background: #27ae60; }
+        .badge.blue { background: #3498db; }
+        .badge.orange { background: #e67e22; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FTGO - Food To Go</h1>
+        <p>Monolithic Application</p>
+    </div>
+    <div class="container">
+        <div class="cards">
+            <div class="card consumer">
+                <h2>Consumer</h2>
+                <p>Browse restaurants, place orders, and track your deliveries</p>
+                <a href="/consumer/restaurants">Browse Restaurants</a>
+                <a href="/consumer/orders?consumerId=1">My Orders</a>
+            </div>
+            <div class="card restaurant">
+                <h2>Restaurant</h2>
+                <p>Manage your menu and view incoming orders</p>
+                <a href="/restaurant/1/menu">Manage Menu</a>
+                <a href="/restaurant/1/orders">View Orders</a>
+            </div>
+            <div class="card courier">
+                <h2>Courier</h2>
+                <p>Accept deliveries and manage your active deliveries</p>
+                <a href="/courier/available?courierId=1">Available Deliveries</a>
+                <a href="/courier/my-deliveries?courierId=1">My Deliveries</a>
+            </div>
+        </div>
+
+        <div class="arch">
+            <h3>Monolith Modules</h3>
+            <ul>
+                <li><span class="badge green">MODULE</span> Restaurant Management - manage restaurants and menus</li>
+                <li><span class="badge green">MODULE</span> Order Management - place and track food orders</li>
+                <li><span class="badge green">MODULE</span> Delivery Management - assign couriers and track deliveries</li>
+                <li><span class="badge green">MODULE</span> Payments - process payments via Stripe (mocked)</li>
+                <li><span class="badge green">MODULE</span> Notification - SMS via Twilio + Email via SES (mocked)</li>
+                <li><span class="badge green">MODULE</span> Billing - generate bills with tax and delivery fees</li>
+                <li><span class="badge blue">DB</span> H2 In-Memory Database &mdash; <a href="/h2-console" style="color:#3498db">H2 Console</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

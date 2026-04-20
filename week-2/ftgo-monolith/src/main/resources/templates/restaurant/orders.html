@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTGO - Restaurant Orders</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        .header { background: #e67e22; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header a { color: white; text-decoration: none; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        h2 { color: #2c3e50; margin-bottom: 15px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { color: #e67e22; text-decoration: none; margin-right: 15px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #555; font-weight: 600; }
+        .status { padding: 4px 10px; border-radius: 12px; font-size: 0.8em; color: white; }
+        .PLACED { background: #3498db; }
+        .APPROVED { background: #2ecc71; }
+        .PREPARING { background: #f39c12; }
+        .READY_FOR_PICKUP { background: #e67e22; }
+        .PICKED_UP { background: #9b59b6; }
+        .DELIVERED { background: #27ae60; }
+        .CANCELLED { background: #e74c3c; }
+        .btn { padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em; color: white; margin: 2px; }
+        .btn-approve { background: #27ae60; }
+        .btn-prepare { background: #f39c12; }
+        .btn-ready { background: #e67e22; }
+        .empty { text-align: center; padding: 40px; color: #999; background: white; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><a href="/">FTGO</a> - Restaurant Portal</h1>
+        <span th:text="${restaurant.name}">Restaurant</span>
+    </div>
+    <div class="container">
+        <div class="nav">
+            <a th:href="@{'/restaurant/' + ${restaurant.id} + '/menu'}">Manage Menu</a>
+            <a th:href="@{'/restaurant/' + ${restaurant.id} + '/orders'}">View Orders</a>
+        </div>
+        <h2>Incoming Orders - <span th:text="${restaurant.name}">Restaurant</span></h2>
+
+        <div th:if="${orders.isEmpty()}" class="empty">
+            <p>No orders received yet.</p>
+        </div>
+
+        <table th:if="${!orders.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Consumer</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}">#</td>
+                    <td th:text="${order.consumer.name}">Consumer</td>
+                    <td>
+                        <span th:each="item, stat : ${order.lineItems}">
+                            <span th:text="${item.menuItem.name + ' x' + item.quantity}">Item</span>
+                            <span th:if="${!stat.last}">, </span>
+                        </span>
+                    </td>
+                    <td th:text="'Rs.' + ${order.totalAmount}">Amount</td>
+                    <td><span class="status" th:classappend="${order.status}" th:text="${order.status}">Status</span></td>
+                    <td th:text="${#temporals.format(order.orderTime, 'dd-MMM HH:mm')}">Time</td>
+                    <td>
+                        <form th:action="@{'/restaurant/orders/' + ${order.id} + '/status'}" method="post" style="display:inline">
+                            <input type="hidden" name="restaurantId" th:value="${restaurant.id}" />
+                            <div th:switch="${order.status.name()}">
+                                <div th:case="'PLACED'">
+                                    <input type="hidden" name="status" value="APPROVED" />
+                                    <button type="submit" class="btn btn-approve">Approve</button>
+                                </div>
+                                <div th:case="'APPROVED'">
+                                    <input type="hidden" name="status" value="PREPARING" />
+                                    <button type="submit" class="btn btn-prepare">Start Preparing</button>
+                                </div>
+                                <div th:case="'PREPARING'">
+                                    <input type="hidden" name="status" value="READY_FOR_PICKUP" />
+                                    <button type="submit" class="btn btn-ready">Ready for Pickup</button>
+                                </div>
+                                <div th:case="*">
+                                    <span style="color:#999; font-size:0.85em;">-</span>
+                                </div>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
