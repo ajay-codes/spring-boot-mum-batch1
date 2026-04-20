@@ -1,8 +1,8 @@
 package com.example.web;
 
-import com.example.entity.FoodOrder;
 import com.example.entity.MenuItem;
 import com.example.entity.OrderStatus;
+import com.example.service.DeliveryService;
 import com.example.service.OrderService;
 import com.example.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/restaurant")
@@ -20,12 +19,21 @@ public class RestaurantPortalController {
 
     private final RestaurantService restaurantService;
     private final OrderService orderService;
+    private final DeliveryService deliveryService;
+
+    // Restaurant selection page
+    @GetMapping("")
+    public String selectRestaurant(Model model) {
+        model.addAttribute("restaurants", restaurantService.getAllRestaurants());
+        return "restaurant/select";
+    }
 
     // Page 1: Manage menu
     @GetMapping("/{id}/menu")
     public String manageMenu(@PathVariable Long id, Model model) {
         model.addAttribute("restaurant", restaurantService.getRestaurant(id));
         model.addAttribute("menuItems", restaurantService.getMenuItems(id));
+        model.addAttribute("allRestaurants", restaurantService.getAllRestaurants());
         return "restaurant/menu";
     }
 
@@ -50,6 +58,7 @@ public class RestaurantPortalController {
     public String viewOrders(@PathVariable Long id, Model model) {
         model.addAttribute("restaurant", restaurantService.getRestaurant(id));
         model.addAttribute("orders", orderService.getOrdersByRestaurant(id));
+        model.addAttribute("allRestaurants", restaurantService.getAllRestaurants());
         return "restaurant/orders";
     }
 
@@ -57,7 +66,14 @@ public class RestaurantPortalController {
     public String updateOrderStatus(@PathVariable Long orderId,
                                     @RequestParam String status,
                                     @RequestParam Long restaurantId) {
-        orderService.updateOrderStatus(orderId, OrderStatus.valueOf(status));
+        OrderStatus newStatus = OrderStatus.valueOf(status);
+        var order = orderService.updateOrderStatus(orderId, newStatus);
+
+        // When restaurant marks READY_FOR_PICKUP, create a delivery entry
+        if (newStatus == OrderStatus.READY_FOR_PICKUP) {
+            deliveryService.createDelivery(order);
+        }
+
         return "redirect:/restaurant/" + restaurantId + "/orders";
     }
 }

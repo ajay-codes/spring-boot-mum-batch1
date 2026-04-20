@@ -23,7 +23,6 @@ public class OrderService {
     private final PaymentService paymentService;
     private final BillingService billingService;
     private final NotificationService notificationService;
-    private final DeliveryService deliveryService;
 
     public FoodOrder placeOrder(Long consumerId, Long restaurantId, List<Long> menuItemIds, List<Integer> quantities,
             String deliveryAddress) {
@@ -69,11 +68,11 @@ public class OrderService {
         // Generate bill
         billingService.generateBill(savedOrder);
 
-        // Create delivery
-        deliveryService.createDelivery(savedOrder);
-
-        // Send notifications
+        // Notify restaurant about new order, notify consumer about confirmation
         notificationService.sendOrderConfirmation(savedOrder);
+
+        // NOTE: Delivery is NOT created here. It is created only when
+        // the restaurant marks the order as READY_FOR_PICKUP.
 
         return savedOrder;
     }
@@ -91,9 +90,33 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
     }
 
-    public FoodOrder updateOrderStatus(Long orderId, OrderStatus status) {
+    public FoodOrder updateOrderStatus(Long orderId, OrderStatus newStatus) {
         FoodOrder order = getOrder(orderId);
-        order.setStatus(status);
+        OrderStatus current = order.getStatus();
+
+        // Enforce valid transitions
+        switch (newStatus) {
+            case APPROVED:
+                if (current != OrderStatus.PLACED)
+                    throw new RuntimeException("Can only approve a PLACED order");
+                break;
+            case PREPARING:
+                if (current != OrderStatus.APPROVED)
+                    throw new RuntimeException("Can only start preparing an APPROVED order");
+                break;
+            case READY_FOR_PICKUP:
+                if (current != OrderStatus.PREPARING)
+                    throw new RuntimeException("Can only mark ready a PREPARING order");
+                break;
+            case CANCELLED:
+                if (current == OrderStatus.DELIVERED || current == OrderStatus.PICKED_UP)
+                    throw new RuntimeException("Cannot cancel an order that is already picked up or delivered");
+                break;
+            default:
+                break;
+        }
+
+        order.setStatus(newStatus);
         FoodOrder saved = foodOrderRepository.save(order);
         notificationService.sendOrderStatusUpdate(saved);
         return saved;

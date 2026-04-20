@@ -1,6 +1,7 @@
 package com.example.web;
 
 import com.example.entity.Delivery;
+import com.example.repository.CourierRepository;
 import com.example.service.DeliveryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import java.util.List;
 public class CourierController {
 
     private final DeliveryService deliveryService;
+    private final CourierRepository courierRepository;
 
     // Page 1: Available deliveries to accept
     @GetMapping("/available")
@@ -22,6 +24,7 @@ public class CourierController {
         List<Delivery> pending = deliveryService.getPendingDeliveries();
         model.addAttribute("deliveries", pending);
         model.addAttribute("courierId", courierId);
+        model.addAttribute("couriers", courierRepository.findAll());
         return "courier/available";
     }
 
@@ -37,6 +40,7 @@ public class CourierController {
         List<Delivery> deliveries = deliveryService.getDeliveriesByCourier(courierId);
         model.addAttribute("deliveries", deliveries);
         model.addAttribute("courierId", courierId);
+        model.addAttribute("couriers", courierRepository.findAll());
         return "courier/my-deliveries";
     }
 

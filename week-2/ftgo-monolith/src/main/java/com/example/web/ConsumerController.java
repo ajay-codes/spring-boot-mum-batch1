@@ -1,8 +1,8 @@
 package com.example.web;
 
 import com.example.entity.FoodOrder;
-import com.example.entity.MenuItem;
 import com.example.entity.Restaurant;
+import com.example.repository.ConsumerRepository;
 import com.example.service.OrderService;
 import com.example.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
@@ -19,21 +19,14 @@ public class ConsumerController {
 
     private final RestaurantService restaurantService;
     private final OrderService orderService;
+    private final ConsumerRepository consumerRepository;
 
     // Page 1: Browse restaurants and place orders
     @GetMapping("/restaurants")
-    public String browseRestaurants(Model model) {
-        List<Restaurant> restaurants = restaurantService.getActiveRestaurants();
-        model.addAttribute("restaurants", restaurants);
-        return "consumer/restaurants";
-    }
-
-    @GetMapping("/restaurants/{id}/menu")
-    public String viewMenu(@PathVariable Long id, Model model) {
-        Restaurant restaurant = restaurantService.getRestaurant(id);
-        List<MenuItem> menuItems = restaurantService.getAvailableMenuItems(id);
-        model.addAttribute("restaurant", restaurant);
-        model.addAttribute("menuItems", menuItems);
+    public String browseRestaurants(@RequestParam(defaultValue = "1") Long consumerId, Model model) {
+        model.addAttribute("restaurants", restaurantService.getActiveRestaurants());
+        model.addAttribute("consumers", consumerRepository.findAll());
+        model.addAttribute("consumerId", consumerId);
         return "consumer/restaurants";
     }
 
@@ -52,6 +45,7 @@ public class ConsumerController {
     public String myOrders(@RequestParam(defaultValue = "1") Long consumerId, Model model) {
         List<FoodOrder> orders = orderService.getOrdersByConsumer(consumerId);
         model.addAttribute("orders", orders);
+        model.addAttribute("consumers", consumerRepository.findAll());
         model.addAttribute("consumerId", consumerId);
         return "consumer/orders";
     }
