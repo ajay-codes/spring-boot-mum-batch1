@@ -1,0 +1,22 @@
+version: '3'
+services:
+  timeservice:
+    build: ./time-service
+    networks:
+      - default
+  greetservice:
+    build: ./greet-service
+    ports:
+      - "8080:8080"
+    environment:
+      - TIMESERVICE_ENDPOINT=http://timeservice:8080/time
+    networks:
+      - default
+    volumes:
+      - greet-service-data:/app/data
+
+networks:
+  default:
+    name: myapp-network
+volumes:
+  greet-service-data:

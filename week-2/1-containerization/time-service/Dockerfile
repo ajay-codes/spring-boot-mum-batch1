@@ -1,0 +1,13 @@
+FROM maven:3.9-eclipse-temurin-17 AS stage1
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src src
+RUN mvn package -DskipTests -B
+
+
+FROM eclipse-temurin:17-jre as stage2
+WORKDIR /app
+COPY --from=stage1 /app/target/*.jar app.jar
+EXPOSE 8081
+ENTRYPOINT ["java", "-jar", "app.jar"]

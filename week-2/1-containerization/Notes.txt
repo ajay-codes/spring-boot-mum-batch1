@@ -1,0 +1,113 @@
+
+
+1.how to build an image
+----------------------
+
+
+-> using Dockerfile
+
+
+Dockerfile instructions are used to build an image. 
+It is a text file that contains a series of instructions on how to build an image. 
+The instructions are executed in order, and each instruction creates a new layer in the image.
+
+
+The most common instructions are:
+- ARG: defines a variable that can be used in the Dockerfile.
+- FROM: specifies the base image to use for the image being built.
+- WORKDIR: sets the working directory for the instructions that follow.
+- RUN: executes a command in the shell at build time.
+- COPY: copies files from the host machine to the image.
+- ADD: copies files from the host machine to the image and can also extract tar files.
+- ENV: sets environment variables in the image.
+- LABEL: adds metadata to the image.
+- MAINTAINER: specifies the author of the image.
+- EXPOSE: specifies the port that the container will listen on at runtime.
+- STOPSIGNAL: sets the signal to be sent to the container to exit. ( SIGTERM is the default signal )
+- SHELL: specifies the shell to use for the instructions that follow. (/bin/sh is the default shell )
+- USER: sets the user to use when running the container. (root is the default user )
+- VOLUME: creates a mount point with the specified name and marks it as holding externally mounted
+- HEALTHCHECK: specifies a command to run to check the health of the container.
+- CMD: specifies the command to run when the container starts. (overridden by the command line arguments when running the container )
+- ENTRYPOINT: specifies the command to run when the container starts. (not overridden by the command line arguments when running the container )
+
+
+docker build -t <image_name> <path_to_dockerfile>
+
+scan the image for vulnerabilities
+-> using Trivy
+
+
+
+2. how to push an image to a registry
+-----------------------------
+
+docker tag <image_name> <registry_url>/<image_name>
+docker push <registry_url>/<image_name>
+
+e.g
+
+docker tag greet-service:v3 docker.io/nagabhushanamn/greet-service:v3
+docker push docker.io/nagabhushanamn/greet-service:v3
+
+
+3. how to run a container
+-----------------------------
+
+create a container from the image and run it
+-> using docker run ( create and start a container in one command )
+
+docker run -d -p <host_port>:<container_port> <image_name>
+
+create a container with resource limits
+-> using docker run with --memory and --cpus flags
+
+docker run -d -p 8080:8080 --memory 500m --cpus 2 greet-service:v1
+
+
+4. How to manage Volumes
+-----------------------------
+
+
+
+5. How to manage Networks
+-----------------------------
+
+ - bridge network (default network)
+ - host network
+ - none network
+ - overlay network (for swarm mode)
+ - macvlan network (for assigning a MAC address to a container)
+
+
+
+ 6. How to manage manage Multiple Containers in single host 
+ ---------------------------------
+
+ - docker-compose (for single host)
+
+    -> creates bridge network for the containers in the compose file
+    -> if required, creates volumes for the containers in the compose file
+    
+
+----------
+
+7. How to manage Multiple Containers in multiple hosts
+---------------------------------
+
+- container orchestration tools (for multiple hosts)
+
+    -> Kubernetes ( k8s )
+
+
+
+k8s - Workloads controller(s)
+-----------------------------
+
+- ReplicaSet -> for scaling applications (not recommended to use directly, use Deployment instead )
+- Deployment -> for stateless applications
+- StatefulSet -> for stateful applications
+- DaemonSet -> for monitoring and logging applications
+- Job -> for batch processing applications e.g data processing, database migration etc
+- CronJob -> for scheduled tasks e.g backup, report generation etc
+
