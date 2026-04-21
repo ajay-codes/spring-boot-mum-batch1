@@ -7,7 +7,6 @@ spring:
 
   cloud:
     gateway:
-      # ── Route definitions ──
       routes:
         # Order Service (consumer UI + order APIs)
         - id: order-service
@@ -31,7 +30,15 @@ spring:
                 name: restaurant-service
                 fallbackUri: forward:/fallback/restaurant
 
-        # Restaurant Portal (Thymeleaf UI on order-service)
+        # Restaurant orders → rewrite to kitchen-service
+        - id: restaurant-orders-to-kitchen
+          uri: lb://KITCHEN-SERVICE
+          predicates:
+            - Path=/restaurant/{restaurantId}/orders
+          filters:
+            - RewritePath=/restaurant/(?<restaurantId>.*)/orders, /kitchen/${restaurantId}/orders
+
+        # Restaurant Portal (menu management on order-service)
         - id: restaurant-portal
           uri: lb://ORDER-SERVICE
           predicates:
@@ -76,8 +83,15 @@ spring:
           predicates:
             - Path=/
 
-      # Global filters — add logging
+        # H2 Console proxy
+        - id: h2-console
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/h2-console/**
+
+      # Global filters
       default-filters:
+        - PreserveHostHeader
         - AddResponseHeader=X-Gateway, ftgo-api-gateway
 
 # ── Eureka ──
@@ -88,7 +102,7 @@ eureka:
   instance:
     prefer-ip-address: true
 
-# ── Resilience4j (Gateway Circuit Breakers) ──
+# ── Resilience4j ──
 resilience4j:
   circuitbreaker:
     configs:
@@ -119,7 +133,6 @@ management:
     gateway:
       enabled: true
 
-# ── Logging ──
 logging:
   level:
     org.springframework.cloud.gateway: INFO

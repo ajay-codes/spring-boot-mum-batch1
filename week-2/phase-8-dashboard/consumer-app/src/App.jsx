@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import SockJS from 'sockjs-client/dist/sockjs'
 import Stomp from 'stompjs'
 
-const API = 'http://localhost:8000'
-const WS_URL = 'http://localhost:8080/ws'
+const API = 'http://34.93.167.128:8000'
+const WS_URL = 'http://34.93.167.128:8080/ws'
 
 const CONSUMERS = [
   { id: 1, name: 'Rahul Sharma', phone: '9876543210' },
@@ -66,7 +66,7 @@ export default function App() {
       setTimeout(() => window.location.reload(), 5000)
     })
     stompRef.current = client
-    return () => { try { client.disconnect() } catch(e){} }
+    return () => { try { client.disconnect() } catch (e) { } }
   }, [])
 
   const placeOrder = async (restaurantId, restaurantName, menuItemId, menuItemName, price) => {
@@ -87,7 +87,7 @@ export default function App() {
         setTab('orders')
         setTimeout(fetchOrders, 2000)
       }
-    } catch(e) { console.error(e) }
+    } catch (e) { console.error(e) }
     setPlacing(false)
   }
 
