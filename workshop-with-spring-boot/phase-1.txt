@@ -1,0 +1,29 @@
+
+
+
+phase-1: setup postgresql database
+------------------------------------------
+-> create postgresql database container
+-> connect using psql client ( cli )
+-> create table(s)
+
+docker run \
+--name postgres-db \
+-d \
+-p 5432:5432 \
+-e POSTGRES_USER=postgres \
+-e POSTGRES_PASSWORD=mysecretpassword \
+-e POSTGRES_DB=mydatabase \
+postgres:latest
+
+docker ps
+
+docker exec -it postgres-db psql -U postgres -d mydatabase
+
+CREATE TABLE todos (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    category VARCHAR(50),
+    completed BOOLEAN DEFAULT FALSE
+);
