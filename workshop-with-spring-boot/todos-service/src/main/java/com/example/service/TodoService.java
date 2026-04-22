@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
 import com.example.dto.CreateTodoRequestDto;
@@ -13,31 +15,33 @@ import com.example.dto.TodoResponseDto;
 import com.example.dto.UpdateTodoRequestDto;
 import com.example.entity.Todo;
 import com.example.entity.TodoCategory;
+import com.example.entity.User;
 import com.example.repository.TodoRepository;
 
 @Service
 public class TodoService {
 
     private final TodoRepository todoRepository;
-    // private final TodoCategoryInferenceService todoCategoryInferenceService;
+    private final UserService userService;
 
-    public TodoService(TodoRepository todoRepository/* ,TodoCategoryInferenceService todoCategoryInferenceService */) {
+    public TodoService(TodoRepository todoRepository, UserService userService) {
         this.todoRepository = todoRepository;
-        // this.todoCategoryInferenceService = todoCategoryInferenceService;
+        this.userService = userService;
     }
 
     public CreateTodoResponseDto createTodo(CreateTodoRequestDto createTodoDto) {
 
-        // Logic to create a new todo item
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
+        String username = authentication.getName();
 
-        // business logic
+        User user = userService.getUserByUsername(username);
 
         Todo todo = new Todo();
         todo.setTitle(createTodoDto.getTitle());
         todo.setDescription(createTodoDto.getDescription());
-        // TodoCategory inferredCategory = todoCategoryInferenceService
-        // .inferCategory(createTodoDto.getTitle(), createTodoDto.getDescription());
         todo.setCategory(TodoCategory.OTHER);
+        todo.setUser(user);
 
         Todo savedTodo = todoRepository.save(todo);
 
@@ -52,7 +56,13 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> getAllTodos() {
-        return todoRepository.findAll().stream()
+
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
+        String username = authentication.getName();
+        User user = userService.getUserByUsername(username);
+
+        return todoRepository.findByUserId(user.getId()).stream()
                 .map(this::toTodoResponseDto)
                 .toList();
     }
@@ -78,8 +88,6 @@ public class TodoService {
         if (StringUtils.hasText(updateTodoRequestDto.getCategory())) {
             todo.setCategory(parseCategoryOrThrow(updateTodoRequestDto.getCategory()));
         } else if (updateTodoRequestDto.getTitle() != null || updateTodoRequestDto.getDescription() != null) {
-            // TodoCategory inferredCategory = todoCategoryInferenceService
-            // .inferCategory(todo.getTitle(), todo.getDescription());
             todo.setCategory(TodoCategory.OTHER);
         }
 

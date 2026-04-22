@@ -15,7 +15,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Todos Service API")
-                        .description("REST API for creating, listing, updating, deleting, and AI-categorizing todos.")
+                        .description("REST API for creating, listing, updating, and deleting todos.")
                         .version("v1")
                         .contact(new Contact()
                                 .name("Todos Service")

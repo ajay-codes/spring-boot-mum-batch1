@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -19,4 +21,8 @@ public class Todo {
     @Enumerated(jakarta.persistence.EnumType.STRING)
     private TodoCategory category;
     private boolean completed;
+    @ManyToOne(targetEntity = User.class, cascade = jakarta.persistence.CascadeType.REFRESH)
+    @JoinTable(name = "user_todos", schema = "public", joinColumns = @jakarta.persistence.JoinColumn(name = "todo_id"), inverseJoinColumns = @jakarta.persistence.JoinColumn(name = "user_id"))
+    private User user;
+
 }

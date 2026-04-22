@@ -1,8 +1,6 @@
 package com.example.service;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.dto.CreateTodoRequestDto;
 import com.example.dto.CreateTodoResponseDto;
@@ -20,13 +18,11 @@ public class TodoServiceUnitTest {
 
     private TodoService todoService;
     TodoRepository mockTodoRepository;
-    TodoCategoryInferenceService mockTodoCategoryInferenceService;
 
     @BeforeEach
     public void setUp() {
         mockTodoRepository = Mockito.mock(TodoRepository.class);
-        mockTodoCategoryInferenceService = Mockito.mock(TodoCategoryInferenceService.class);
-        todoService = new TodoService(mockTodoRepository, mockTodoCategoryInferenceService);
+        todoService = new TodoService(mockTodoRepository);
     }
 
     @Test
@@ -46,8 +42,6 @@ public class TodoServiceUnitTest {
             todo.setId(1L); // Simulate database-generated ID
             return todo;
         });
-        Mockito.when(mockTodoCategoryInferenceService.inferCategory(title, description))
-                .thenReturn(com.example.entity.TodoCategory.OTHER);
 
         CreateTodoResponseDto createdTodo = todoService.createTodo(createTodoDto);
 

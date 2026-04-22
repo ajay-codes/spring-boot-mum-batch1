@@ -36,8 +36,8 @@ phase-4: OpenAPI / Swagger UI integration
 phase-5: Security ( Authentication & Authorization )
 ------------------------------------------
 - step-1: add dependencies for spring security
-- step-2: configure security settings ( JDBC authentication )
-- step-3: secure the API endpoints based on roles 
-   - USER can manage only their own todos
-   - ADMIN can manage all todos
+- step-2: configure security settings 
+- step-3: implement register and login functionality to generate JWT tokens
+- step-4: secure the API endpoints using JWT tokens
+
 

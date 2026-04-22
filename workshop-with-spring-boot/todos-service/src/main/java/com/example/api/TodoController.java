@@ -38,7 +38,7 @@ public class TodoController {
         this.todoService = todoService;
     }
 
-    @Operation(summary = "Create a todo", description = "Creates a new todo and infers its category using Spring AI.")
+    @Operation(summary = "Create a todo", description = "Creates a new todo.")
     @ApiResponse(responseCode = "200", description = "Todo created successfully", content = @Content(schema = @Schema(implementation = CreateTodoResponseDto.class)))
     @PostMapping(consumes = "application/json", produces = "application/json")
     public CreateTodoResponseDto createTodo(@RequestBody CreateTodoRequestDto createTodoDto) {
@@ -62,7 +62,7 @@ public class TodoController {
         return todoService.getTodoById(id);
     }
 
-    @Operation(summary = "Update a todo", description = "Updates a todo by id. If category is omitted and text changes, category is inferred again.")
+    @Operation(summary = "Update a todo", description = "Updates a todo by id.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Todo updated successfully", content = @Content(schema = @Schema(implementation = TodoResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid category", content = @Content),
