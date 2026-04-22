@@ -21,7 +21,7 @@ public class TodoService {
     private final TodoRepository todoRepository;
     // private final TodoCategoryInferenceService todoCategoryInferenceService;
 
-    public TodoService(TodoRepository todoRepository, TodoCategoryInferenceService todoCategoryInferenceService) {
+    public TodoService(TodoRepository todoRepository/* ,TodoCategoryInferenceService todoCategoryInferenceService */) {
         this.todoRepository = todoRepository;
         // this.todoCategoryInferenceService = todoCategoryInferenceService;
     }
@@ -78,9 +78,9 @@ public class TodoService {
         if (StringUtils.hasText(updateTodoRequestDto.getCategory())) {
             todo.setCategory(parseCategoryOrThrow(updateTodoRequestDto.getCategory()));
         } else if (updateTodoRequestDto.getTitle() != null || updateTodoRequestDto.getDescription() != null) {
-            TodoCategory inferredCategory = todoCategoryInferenceService
-                    .inferCategory(todo.getTitle(), todo.getDescription());
-            todo.setCategory(inferredCategory);
+            // TodoCategory inferredCategory = todoCategoryInferenceService
+            // .inferCategory(todo.getTitle(), todo.getDescription());
+            todo.setCategory(TodoCategory.OTHER);
         }
 
         Todo savedTodo = todoRepository.save(todo);

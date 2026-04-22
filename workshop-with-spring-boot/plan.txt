@@ -24,3 +24,20 @@ phase-3: Spring AI integration
 - step-1: add dependencies for spring ai ( spring boot starter ai )
 - step-2: create a service class to handle AI related logic
    Req-1- from todo title & description, need to identify the category of the todo ( work, personal, shopping, etc ) using spring ai
+
+
+phase-4: OpenAPI / Swagger UI integration 
+------------------------------------------
+- step-1: add dependencies for springdoc-openapi-ui
+- step-2: configure application.properties to set the path for swagger ui
+- step-3: test the swagger ui by accessing the configured path in the browser ( e.g. http://localhost:8080/swagger-ui.html )
+
+
+phase-5: Security ( Authentication & Authorization )
+------------------------------------------
+- step-1: add dependencies for spring security
+- step-2: configure security settings ( JDBC authentication )
+- step-3: secure the API endpoints based on roles 
+   - USER can manage only their own todos
+   - ADMIN can manage all todos
+
