@@ -4,15 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import com.example.dto.CreateTodoRequestDto;
 import com.example.dto.CreateTodoResponseDto;
-import com.example.entity.Todo;
-import com.example.repository.TodoRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.jupiter.api.BeforeEach;
-
-import org.mockito.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
