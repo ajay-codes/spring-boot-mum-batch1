@@ -2,7 +2,8 @@ package com.example.service;
 
 import org.junit.jupiter.api.Test;
 
-import com.example.dto.CreateTodoDto;
+import com.example.dto.CreateTodoRequestDto;
+import com.example.dto.CreateTodoResponseDto;
 import com.example.entity.Todo;
 import com.example.repository.TodoRepository;
 
@@ -29,18 +30,19 @@ public class TodoServiceIntegrationTest {
         String title = "Test Todo";
         String description = "This is a test todo item.";
 
-        CreateTodoDto createTodoDto = new CreateTodoDto();
+        CreateTodoRequestDto createTodoDto = new CreateTodoRequestDto();
         createTodoDto.setTitle(title);
         createTodoDto.setDescription(description);
 
         // When
 
-        Todo createdTodo = todoService.createTodo(createTodoDto);
+        CreateTodoResponseDto createdTodo = todoService.createTodo(createTodoDto);
 
         // Then
         assertNotNull(createdTodo);
         assertEquals(title, createdTodo.getTitle());
         assertEquals(description, createdTodo.getDescription());
+        assertEquals("OTHER", createdTodo.getCategory());
 
     }
 
