@@ -16,3 +16,11 @@ step-5: create repository interface for the entity class
 step-6: create service class to handle business logic
 step-7: create controller class to handle HTTP requests
 step-8: test the application using postman or curl
+
+
+phase-3: Spring AI integration
+------------------------------------------
+
+- step-1: add dependencies for spring ai ( spring boot starter ai )
+- step-2: create a service class to handle AI related logic
+   Req-1- from todo title & description, need to identify the category of the todo ( work, personal, shopping, etc ) using spring ai

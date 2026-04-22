@@ -5,8 +5,8 @@ import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Data
-@Schema(name = "CreateTodoResponse", description = "Response payload after creating a todo")
-public class CreateTodoResponseDto {
+@Schema(name = "TodoResponse", description = "Todo response payload")
+public class TodoResponseDto {
 
     @Schema(example = "1")
     private Long id;
@@ -19,5 +19,8 @@ public class CreateTodoResponseDto {
 
     @Schema(example = "OTHER")
     private String category;
+
+    @Schema(example = "false")
+    private boolean completed;
 
 }

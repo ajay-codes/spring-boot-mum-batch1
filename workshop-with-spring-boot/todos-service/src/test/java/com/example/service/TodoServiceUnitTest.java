@@ -20,11 +20,13 @@ public class TodoServiceUnitTest {
 
     private TodoService todoService;
     TodoRepository mockTodoRepository;
+    TodoCategoryInferenceService mockTodoCategoryInferenceService;
 
     @BeforeEach
     public void setUp() {
         mockTodoRepository = Mockito.mock(TodoRepository.class);
-        todoService = new TodoService(mockTodoRepository);
+        mockTodoCategoryInferenceService = Mockito.mock(TodoCategoryInferenceService.class);
+        todoService = new TodoService(mockTodoRepository, mockTodoCategoryInferenceService);
     }
 
     @Test
@@ -44,6 +46,8 @@ public class TodoServiceUnitTest {
             todo.setId(1L); // Simulate database-generated ID
             return todo;
         });
+        Mockito.when(mockTodoCategoryInferenceService.inferCategory(title, description))
+                .thenReturn(com.example.entity.TodoCategory.OTHER);
 
         CreateTodoResponseDto createdTodo = todoService.createTodo(createTodoDto);
 
