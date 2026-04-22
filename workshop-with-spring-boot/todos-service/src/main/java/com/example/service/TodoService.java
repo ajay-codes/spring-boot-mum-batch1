@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.StringUtils;
 
 import com.example.dto.CreateTodoRequestDto;
@@ -30,12 +31,7 @@ public class TodoService {
     }
 
     public CreateTodoResponseDto createTodo(CreateTodoRequestDto createTodoDto) {
-
-        Authentication authentication = SecurityContextHolder.getContext()
-                .getAuthentication();
-        String username = authentication.getName();
-
-        User user = userService.getUserByUsername(username);
+        User user = getCurrentUserOrThrow();
 
         Todo todo = new Todo();
         todo.setTitle(createTodoDto.getTitle());
@@ -56,24 +52,28 @@ public class TodoService {
     }
 
     public List<TodoResponseDto> getAllTodos() {
+        Authentication authentication = getAuthenticationOrThrow();
 
-        Authentication authentication = SecurityContextHolder.getContext()
-                .getAuthentication();
-        String username = authentication.getName();
-        User user = userService.getUserByUsername(username);
+        List<Todo> todos;
+        if (hasRole(authentication, "ROLE_ADMIN")) {
+            todos = todoRepository.findAll();
+        } else {
+            User user = getCurrentUserOrThrow();
+            todos = todoRepository.findByUserId(user.getId());
+        }
 
-        return todoRepository.findByUserId(user.getId()).stream()
+        return todos.stream()
                 .map(this::toTodoResponseDto)
                 .toList();
     }
 
     public TodoResponseDto getTodoById(Long id) {
-        Todo todo = findByIdOrThrow(id);
+        Todo todo = findAccessibleTodoOrThrow(id);
         return toTodoResponseDto(todo);
     }
 
     public TodoResponseDto updateTodo(Long id, UpdateTodoRequestDto updateTodoRequestDto) {
-        Todo todo = findByIdOrThrow(id);
+        Todo todo = findAccessibleTodoOrThrow(id);
 
         if (updateTodoRequestDto.getTitle() != null) {
             todo.setTitle(updateTodoRequestDto.getTitle());
@@ -96,14 +96,42 @@ public class TodoService {
     }
 
     public void deleteTodo(Long id) {
-        Todo todo = findByIdOrThrow(id);
+        Todo todo = findAccessibleTodoOrThrow(id);
         todoRepository.delete(todo);
     }
 
-    private Todo findByIdOrThrow(Long id) {
-        return todoRepository.findById(id)
+    private Todo findAccessibleTodoOrThrow(Long id) {
+        Authentication authentication = getAuthenticationOrThrow();
+        if (hasRole(authentication, "ROLE_ADMIN")) {
+            return todoRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Todo not found with id: " + id));
+        }
+
+        User currentUser = getCurrentUserOrThrow();
+        return todoRepository.findByIdAndUserId(id, currentUser.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Todo not found with id: " + id));
+    }
+
+    private User getCurrentUserOrThrow() {
+        Authentication authentication = getAuthenticationOrThrow();
+        return userService.getUserByUsername(authentication.getName());
+    }
+
+    private Authentication getAuthenticationOrThrow() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+        return authentication;
+    }
+
+    private boolean hasRole(Authentication authentication, String roleName) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(roleName::equals);
     }
 
     private TodoCategory parseCategoryOrThrow(String categoryText) {

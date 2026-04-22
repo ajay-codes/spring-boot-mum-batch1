@@ -2,11 +2,13 @@ package com.example.service;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.dto.CreateUserRequestDto;
 import com.example.dto.CreateUserResponseDto;
@@ -28,14 +30,17 @@ public class UserService implements UserDetailsService {
     }
 
     public CreateUserResponseDto createUser(CreateUserRequestDto createUserDto) {
-        // Logic to create a new user
+        if (userRepository.existsByUsername(createUserDto.getUsername())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+        }
+
         User user = new User();
         user.setUsername(createUserDto.getUsername());
         user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         user.setName(createUserDto.getName());
         user.setEmail(createUserDto.getEmail());
-        user.setRoles(List
-                .of(roleRepository.findByName("ROLE_USER").orElseThrow(() -> new RuntimeException("Role not found"))));
+        user.setRoles(List.of(roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Role not found"))));
         userRepository.save(user);
         CreateUserResponseDto responseDto = new CreateUserResponseDto();
         responseDto.setUsername(user.getUsername());
@@ -46,7 +51,7 @@ public class UserService implements UserDetailsService {
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("user not found exception"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     @Override

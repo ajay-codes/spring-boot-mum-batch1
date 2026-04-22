@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class JwtUtil {
@@ -27,10 +28,18 @@ public class JwtUtil {
 
     // Generate JWT token
     public String generateToken(String username, List<String> roles) {
-        System.out.println(roles);
+        List<String> safeRoles = (roles == null)
+                ? Collections.emptyList()
+                : roles.stream()
+                        .filter(Objects::nonNull)
+                        .map(String::trim)
+                        .filter(role -> !role.isEmpty())
+                        .distinct()
+                        .toList();
+
         return Jwts.builder()
                 .subject(username)
-                .claim("roles", roles)
+                .claim("roles", safeRoles)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${appName}">Todos Service</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+
+<body>
+    <main class="shell">
+        <section class="hero">
+            <p class="eyebrow">Spring Boot + JWT + Thymeleaf</p>
+            <h1 th:text="${appName}">Todos Service</h1>
+            <p class="lede">Use the browser page for quick manual testing while keeping the REST API and Swagger UI
+                available.</p>
+            <div class="hero-actions">
+                <a class="ghost-button" th:href="${swaggerPath}" target="_blank" rel="noreferrer">Open Swagger UI</a>
+                <button id="loadTodosButton" class="primary-button" type="button">Load My Todos</button>
+            </div>
+        </section>
+
+        <section class="grid">
+            <article class="card">
+                <h2>Register</h2>
+                <form id="registerForm" class="stacked-form">
+                    <input name="name" placeholder="Name" required>
+                    <input name="email" placeholder="Email" type="email" required>
+                    <input name="username" placeholder="Username" required>
+                    <input name="password" placeholder="Password" type="password" required>
+                    <button type="submit">Create Account</button>
+                </form>
+            </article>
+
+            <article class="card accent-card">
+                <h2>Login</h2>
+                <form id="loginForm" class="stacked-form">
+                    <input name="username" placeholder="Username" required>
+                    <input name="password" placeholder="Password" type="password" required>
+                    <button type="submit">Get JWT Token</button>
+                </form>
+                <label class="token-label" for="tokenBox">JWT token</label>
+                <textarea id="tokenBox" rows="5" placeholder="Token appears here after login"></textarea>
+            </article>
+        </section>
+
+        <section class="grid grid-bottom">
+            <article class="card wide-card">
+                <h2>Create Todo</h2>
+                <form id="todoForm" class="stacked-form inline-form">
+                    <input name="title" placeholder="Todo title" required>
+                    <input name="description" placeholder="Todo description" required>
+                    <button type="submit">Create Todo</button>
+                </form>
+                <p class="note">This form sends the JWT from the login panel as a Bearer token to the protected API.</p>
+            </article>
+
+            <article class="card">
+                <h2>Activity</h2>
+                <pre id="activityLog" class="log-panel">Ready.</pre>
+            </article>
+        </section>
+
+        <section class="card todo-list-card">
+            <div class="section-header">
+                <h2>My Todos</h2>
+                <span class="hint">Fetched from /api/todos</span>
+            </div>
+            <ul id="todoList" class="todo-list">
+                <li class="placeholder">No todos loaded yet.</li>
+            </ul>
+        </section>
+    </main>
+
+    <script th:inline="javascript">
+        const swaggerPath = [[${ swaggerPath }]];
+        const tokenBox = document.getElementById('tokenBox');
+        const activityLog = document.getElementById('activityLog');
+        const todoList = document.getElementById('todoList');
+
+        function writeLog(message) {
+            activityLog.textContent = message;
+        }
+
+        function currentToken() {
+            return tokenBox.value.trim();
+        }
+
+        function authHeaders() {
+            const token = currentToken();
+            return token ? { Authorization: `Bearer ${token}` } : {};
+        }
+
+        async function postJson(url, payload, useAuth = false) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(useAuth ? authHeaders() : {})
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const text = await response.text();
+            const body = text ? JSON.parse(text) : null;
+            if (!response.ok) {
+                throw new Error(body?.message || text || `Request failed with status ${response.status}`);
+            }
+            return body;
+        }
+
+        async function loadTodos() {
+            const response = await fetch('/api/todos', {
+                headers: {
+                    ...authHeaders()
+                }
+            });
+
+            const text = await response.text();
+            const todos = text ? JSON.parse(text) : [];
+
+            if (!response.ok) {
+                throw new Error(todos?.message || text || `Request failed with status ${response.status}`);
+            }
+
+            todoList.innerHTML = '';
+            if (!Array.isArray(todos) || todos.length === 0) {
+                todoList.innerHTML = '<li class="placeholder">No todos found for the current user.</li>';
+                return;
+            }
+
+            for (const todo of todos) {
+                const item = document.createElement('li');
+                item.className = 'todo-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${todo.title}</strong>
+                        <p>${todo.description || ''}</p>
+                    </div>
+                    <span>${todo.category || 'OTHER'}${todo.completed ? ' • completed' : ''}</span>
+                `;
+                todoList.appendChild(item);
+            }
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formElement = event.currentTarget;
+            const form = new FormData(formElement);
+            try {
+                const body = Object.fromEntries(form.entries());
+                const response = await postJson('/register', body);
+                writeLog(`Registered user ${response.username}.`);
+                formElement.reset();
+            } catch (error) {
+                writeLog(error.message);
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formElement = event.currentTarget;
+            const form = new FormData(formElement);
+            try {
+                const body = Object.fromEntries(form.entries());
+                const response = await postJson('/login', body);
+                tokenBox.value = response.token || '';
+                writeLog(response.message || 'Login successful.');
+                formElement.reset();
+            } catch (error) {
+                writeLog(error.message);
+            }
+        });
+
+        document.getElementById('todoForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formElement = event.currentTarget;
+            const form = new FormData(formElement);
+            try {
+                const body = Object.fromEntries(form.entries());
+                const response = await postJson('/api/todos', body, true);
+                writeLog(`Created todo #${response.id}: ${response.title}`);
+                formElement.reset();
+                await loadTodos();
+            } catch (error) {
+                writeLog(error.message);
+            }
+        });
+
+        document.getElementById('loadTodosButton').addEventListener('click', async () => {
+            try {
+                await loadTodos();
+                writeLog('Todos loaded successfully.');
+            } catch (error) {
+                writeLog(error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

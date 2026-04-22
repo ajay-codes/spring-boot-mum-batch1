@@ -7,11 +7,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -37,32 +34,17 @@ public class SecurityConfig {
                 // URL authorization rules (same as V2)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register", "/login", "/api/public/**").permitAll()
+                        .requestMatchers("/", "/index", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/actuator/health", "/error").permitAll()
                         .requestMatchers("/api/**").hasAnyRole("USER", "ADMIN")
-                        .anyRequest().permitAll() // thymeleaf pages
-                )
+                        .anyRequest().permitAll())
 
                 // Add JWT filter BEFORE Spring's UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-    // @Bean
-    // public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-    // var user = User.builder()
-    // .username("user")
-    // .password(encoder.encode("password"))
-    // .roles("USER")
-    // .build();
-
-    // var admin = User.builder()
-    // .username("admin")
-    // .password(encoder.encode("password"))
-    // .roles("ADMIN")
-    // .build();
-
-    // return new InMemoryUserDetailsManager(user, admin);
-    // }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

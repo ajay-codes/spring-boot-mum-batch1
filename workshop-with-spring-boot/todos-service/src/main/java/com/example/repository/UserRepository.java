@@ -8,4 +8,6 @@ import com.example.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username); // select * from users where username = ? limit 1
+
+    boolean existsByUsername(String username);
 }

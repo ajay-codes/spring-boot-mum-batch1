@@ -40,4 +40,5 @@ phase-5: Security ( Authentication & Authorization )
 - step-3: implement register and login functionality to generate JWT tokens
 - step-4: secure the API endpoints using JWT tokens
 
+https://nagcloudlab.notion.site/Spring-security-Intro-274aa670cfc94debb69dbf11badcf5c6?source=copy_link
 
