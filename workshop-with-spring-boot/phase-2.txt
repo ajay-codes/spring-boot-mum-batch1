@@ -1,0 +1,32 @@
+
+
+how to create spring-boot application?
+---------------------------------------
+use one of the following
+- Create a new Spring Boot project using Spring Initializr (https://start.spring.io/).
+- Use your IDE  VS Code's spring-boot extension to create a new Spring Boot project.
+
+ with spring-boot dependencies 
+
+    - development tools
+    - lombok
+    - configuration processor
+    - actuator
+    - web
+    - data-jpa
+    - postgresql
+
+
+run the application using the command `./mvnw spring-boot:run` or by running the main class in your IDE.
+
+
+configure application.properties for database connection
+-------------------------------------------------------
+
+add the following properties to your application.properties file to configure the database connection:
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/your_database_name
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
