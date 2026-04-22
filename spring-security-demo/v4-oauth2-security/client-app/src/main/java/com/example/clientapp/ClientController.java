@@ -34,12 +34,13 @@ public class ClientController {
     // ===== PROTECTED - requires OAuth2 login =====
     @GetMapping("/dashboard")
     public String dashboard(Model model,
-                            @AuthenticationPrincipal OidcUser oidcUser,
-                            @RegisteredOAuth2AuthorizedClient("my-auth-server") OAuth2AuthorizedClient authorizedClient) {
+            @AuthenticationPrincipal OidcUser oidcUser,
+            @RegisteredOAuth2AuthorizedClient("my-auth-server") OAuth2AuthorizedClient authorizedClient) {
 
         // Show user info from the OAuth2 token
         model.addAttribute("username", oidcUser.getPreferredUsername() != null
-                ? oidcUser.getPreferredUsername() : oidcUser.getSubject());
+                ? oidcUser.getPreferredUsername()
+                : oidcUser.getSubject());
         model.addAttribute("claims", oidcUser.getClaims());
         model.addAttribute("accessToken", authorizedClient.getAccessToken().getTokenValue());
 

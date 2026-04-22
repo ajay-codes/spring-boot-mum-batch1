@@ -39,128 +39,125 @@ import java.util.UUID;
 @Configuration
 public class AuthServerConfig {
 
-    // ===== Filter chain for OAuth2 Authorization Server endpoints =====
-    @Bean
-    @Order(1)
-    public SecurityFilterChain authServerFilterChain(HttpSecurity http) throws Exception {
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                .oidc(Customizer.withDefaults());   // Enable OpenID Connect
-
-        http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
-        );
-
-        return http.build();
-    }
-
-    // ===== Filter chain for login page =====
-    @Bean
-    @Order(2)
-    public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                )
-                .formLogin(Customizer.withDefaults());
-
-        return http.build();
-    }
-
-    // ===== Registered OAuth2 Clients =====
-    @Bean
-    public RegisteredClientRepository registeredClientRepository(PasswordEncoder encoder) {
-
-        // Client 1: Authorization Code flow (for browser-based client-app)
-        RegisteredClient webClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("client-app")
-                .clientSecret(encoder.encode("secret"))
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://localhost:8080/login/oauth2/code/my-auth-server")
-                .scope(OidcScopes.OPENID)
-                .scope(OidcScopes.PROFILE)
-                .scope("read")
-                .scope("write")
-                .clientSettings(ClientSettings.builder()
-                        .requireAuthorizationConsent(true)  // show consent screen
-                        .build())
-                .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofMinutes(30))
-                        .refreshTokenTimeToLive(Duration.ofHours(8))
-                        .build())
-                .build();
-
-        // Client 2: Client Credentials flow (for service-to-service)
-        RegisteredClient serviceClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("service-client")
-                .clientSecret(encoder.encode("service-secret"))
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("read")
-                .scope("write")
-                .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofMinutes(15))
-                        .build())
-                .build();
-
-        return new InMemoryRegisteredClientRepository(webClient, serviceClient);
-    }
-
-    // ===== Users who can login at the Auth Server =====
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        var user = User.builder()
-                .username("user")
-                .password(encoder.encode("password"))
-                .roles("USER")
-                .build();
-
-        var admin = User.builder()
-                .username("admin")
-                .password(encoder.encode("password"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    // ===== RSA Key Pair for signing JWT tokens =====
-    @Bean
-    public JWKSource<SecurityContext> jwkSource() {
-        KeyPair keyPair = generateRsaKey();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-
-        RSAKey rsaKey = new RSAKey.Builder(publicKey)
-                .privateKey(privateKey)
-                .keyID(UUID.randomUUID().toString())
-                .build();
-
-        return new ImmutableJWKSet<>(new JWKSet(rsaKey));
-    }
-
-    private static KeyPair generateRsaKey() {
-        try {
-            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-            generator.initialize(2048);
-            return generator.generateKeyPair();
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+        // ===== Filter chain for OAuth2 Authorization Server endpoints =====
+        @Bean
+        @Order(1)
+        public SecurityFilterChain authServerFilterChain(HttpSecurity http) throws Exception {
+                OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+                http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                                .oidc(Customizer.withDefaults()); // Enable OpenID Connect
+                http.exceptionHandling(ex -> ex
+                                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+                        // Accept Bearer tokens for /userinfo endpoint
+                        .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+                return http.build();
         }
-    }
 
-    @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder()
-                .issuer("http://localhost:9000")
-                .build();
-    }
+        // ===== Filter chain for login page =====
+        @Bean
+        @Order(2)
+        public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .authorizeHttpRequests(auth -> auth
+                                                .anyRequest().authenticated())
+                                .formLogin(Customizer.withDefaults());
+
+                return http.build();
+        }
+
+        // ===== Registered OAuth2 Clients =====
+        @Bean
+        public RegisteredClientRepository registeredClientRepository(PasswordEncoder encoder) {
+
+                // Client 1: Authorization Code flow (for browser-based client-app)
+                RegisteredClient webClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                                .clientId("client-app")
+                                .clientSecret(encoder.encode("secret"))
+                                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                                .redirectUri("http://localhost:8080/login/oauth2/code/my-auth-server")
+                                .scope(OidcScopes.OPENID)
+                                .scope(OidcScopes.PROFILE)
+                                .scope("read")
+                                .scope("write")
+                                .clientSettings(ClientSettings.builder()
+                                                .requireAuthorizationConsent(true) // show consent screen
+                                                .build())
+                                .tokenSettings(TokenSettings.builder()
+                                                .accessTokenTimeToLive(Duration.ofMinutes(30))
+                                                .refreshTokenTimeToLive(Duration.ofHours(8))
+                                                .build())
+                                .build();
+
+                // Client 2: Client Credentials flow (for service-to-service)
+                RegisteredClient serviceClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                                .clientId("service-client")
+                                .clientSecret(encoder.encode("service-secret"))
+                                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                                .scope("read")
+                                .scope("write")
+                                .tokenSettings(TokenSettings.builder()
+                                                .accessTokenTimeToLive(Duration.ofMinutes(15))
+                                                .build())
+                                .build();
+
+                return new InMemoryRegisteredClientRepository(webClient, serviceClient);
+        }
+
+        // ===== Users who can login at the Auth Server =====
+        @Bean
+        public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+                var user = User.builder()
+                                .username("user")
+                                .password(encoder.encode("password"))
+                                .roles("USER")
+                                .build();
+
+                var admin = User.builder()
+                                .username("admin")
+                                .password(encoder.encode("password"))
+                                .roles("ADMIN")
+                                .build();
+
+                return new InMemoryUserDetailsManager(user, admin);
+        }
+
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
+
+        // ===== RSA Key Pair for signing JWT tokens =====
+        @Bean
+        public JWKSource<SecurityContext> jwkSource() {
+                KeyPair keyPair = generateRsaKey();
+                RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+                RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+
+                RSAKey rsaKey = new RSAKey.Builder(publicKey)
+                                .privateKey(privateKey)
+                                .keyID(UUID.randomUUID().toString())
+                                .build();
+
+                return new ImmutableJWKSet<>(new JWKSet(rsaKey));
+        }
+
+        private static KeyPair generateRsaKey() {
+                try {
+                        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+                        generator.initialize(2048);
+                        return generator.generateKeyPair();
+                } catch (Exception e) {
+                        throw new IllegalStateException(e);
+                }
+        }
+
+        @Bean
+        public AuthorizationServerSettings authorizationServerSettings() {
+                return AuthorizationServerSettings.builder()
+                                .issuer("http://localhost:9000")
+                                .build();
+        }
 }
