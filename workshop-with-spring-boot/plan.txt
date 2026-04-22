@@ -2,17 +2,17 @@
 
 phase-1: setup postgresql database
 ------------------------------------------
--> create postgresql database container
--> connect using psql client ( cli )
--> create table(s)
+step-1: create postgresql database container
+step-2: connect using psql client ( cli )
+step-3: create table(s)
 
 phase-2: setup spring boot application
 ------------------------------------------
--> create spring boot application using spring initializer or VS code extension
--> add dependencies for spring data jpa ,postgresql driver, spring web
--> configure application.properties for database connection
--> create entity class for the table created in phase-1
--> create repository interface for the entity class
--> create service class to handle business logic
--> create controller class to handle HTTP requests
--> test the application using postman or curl
+step-1: create spring boot application using spring initializer or VS code extension
+step-2: add dependencies for spring data jpa ,postgresql driver, spring web
+step-3: configure application.properties for database connection
+step-4: create entity class for the table created in phase-1
+step-5: create repository interface for the entity class
+step-6: create service class to handle business logic
+step-7: create controller class to handle HTTP requests
+step-8: test the application using postman or curl
