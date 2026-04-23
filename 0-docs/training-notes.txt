@@ -1,0 +1,362 @@
+# 🚀 Backend / Microservices Training Notes (Refined)
+
+## 1. 🧰 Core Setup & Tooling
+
+### Basic Setup
+
+* Install **Java 17 (LTS)**
+* Build tool: **Maven**
+* Version control:
+
+  ```bash
+  git clone <repo-url>
+  ```
+
+---
+
+## 2. 🌱 Java Backend Framework Ecosystem
+
+### Primary Framework
+
+* **Spring / Spring Boot**
+
+  * Dependency Injection
+  * REST APIs
+  * Security
+  * Reactive support
+
+### Alternatives (Cloud-Native Focus)
+
+* Quarkus – optimized for Kubernetes & GraalVM
+* Helidon – lightweight microservices
+* Micronaut – fast startup, low memory
+
+---
+
+## 3. ⚡ Performance & Native Images
+
+* GraalVM
+
+  * Converts Java apps → native binaries
+  * Faster startup, lower memory
+  * Important for serverless & microservices
+
+---
+
+## 4. 🌐 API Development
+
+### REST APIs
+
+* Standard: **JAX-RS**
+
+  * Implementations:
+
+    * RESTEasy
+
+### API Documentation
+
+* **OpenAPI Specification (Swagger)**
+
+  * UI:
+
+    ```
+    http://localhost:8080/swagger-ui/index.html
+    ```
+
+### Graph-Based APIs
+
+* GraphQL
+
+  * Spring GraphQL support
+
+---
+
+## 5. 🧠 Spring Core Concepts
+
+### Bean
+
+* Object managed by Spring container
+* Created via:
+
+  * `@Component`, `@Service`, `@Repository`
+  * `@ComponentScan`
+
+### Bean Lifecycle
+
+**High-level flow:**
+
+1. Create ApplicationContext
+2. Scan classes
+3. Create BeanDefinitions
+4. BeanFactoryPostProcessor 🔥
+5. Instantiate beans
+6. Dependency injection
+7. BeanPostProcessor 🔥
+8. Initialization
+9. App ready
+
+**Detailed lifecycle:**
+
+1. Load Bean Definitions
+2. BeanFactoryPostProcessor
+3. Instantiate Bean
+4. Inject Dependencies
+5. Aware Interfaces
+6. BeanPostProcessor (before)
+7. `@PostConstruct`
+8. BeanPostProcessor (after)
+9. Bean Ready
+10. `@PreDestroy`
+
+---
+
+## 6. 🔥 Configuration Priority (Spring Boot)
+
+**VERY IMPORTANT ORDER:**
+
+```
+1. Command line arguments
+2. Environment variables
+3. External config (outside JAR)
+4. application.properties (inside)
+5. @Value default
+```
+
+👉 CLI > ENV > External > Properties > Default
+
+---
+
+## 7. 🧩 Microservices Architecture
+
+### Key Concepts
+
+* Use patterns to solve recurring problems
+* Reference: microservices.io
+
+### Important Ideas
+
+* **8 Fallacies of Distributed Computing**
+* Reactive Manifesto
+* Reactive Streams
+
+### Reactive Stack
+
+* Spring WebFlux
+* SmallRye Mutiny
+
+---
+
+## 8. 🛡️ Resilience & Fault Tolerance
+
+* Library: **Resilience4j**
+* Spec: MicroProfile Fault Tolerance
+
+### Patterns
+
+* Retry
+* Circuit Breaker
+* Bulkhead
+* Timeout
+
+---
+
+## 9. 🔁 Distributed Transactions
+
+### Saga Pattern
+
+* Ensures **ACD (Atomicity, Consistency, Durability)**
+* ❗ Does NOT guarantee Isolation
+
+---
+
+## 10. 🗄️ Database Design
+
+### Relationships
+
+1. One-to-One
+2. One-to-Many
+3. Many-to-Many
+
+### Normalization Rules
+
+1. No repeating groups
+2. Remove redundancy
+3. Ensure proper dependencies
+
+### NoSQL Preference
+
+* Prefer denormalization in systems like Cassandra
+* Avoid joins (expensive)
+
+---
+
+## 11. 📊 CAP Theorem
+
+* You can only choose 2:
+
+  * Consistency (C)
+  * Availability (A)
+  * Partition Tolerance (P)
+
+### Example
+
+* AP system → Cassandra
+
+  * High availability
+  * Eventual consistency
+
+### Formula Insight
+
+```
+CLread + CLwrite > RF
+```
+
+* Ensures strong consistency in distributed DB
+
+---
+
+## 12. 🐳 Containers & Deployment
+
+### Container Flow
+
+```
+Dockerfile
+   ↓
+docker build
+   ↓
+Image (OCI standard)
+   ↓
+Push → Registry
+   ↓
+docker pull
+   ↓
+docker run
+   ↓
+Container
+```
+
+### Standards
+
+* Open Container Initiative
+
+### Docker Example (PostgreSQL)
+
+```bash
+docker run --name todo-postgres \
+  -e POSTGRES_USER=todo_user \
+  -e POSTGRES_PASSWORD=todo_pass \
+  -e POSTGRES_DB=todo_db \
+  -p 5432:5432 \
+  -d postgres:16
+```
+
+---
+
+## 13. ☁️ Deployment & CI/CD
+
+* Cloud deployment:
+
+  * Google Cloud Run
+
+* CI/CD:
+
+  * GitHub Actions
+  * Tekton
+
+* CNCF ecosystem (Kubernetes tools)
+
+---
+
+## 14. 🔐 Security (Spring Security)
+
+### Concepts
+
+* OAuth 2.0
+* OIDC (OpenID Connect)
+* IAM (Identity Access Management)
+
+### Flow
+
+```
+Client → (Bearer Token)
+   ↓
+Resource Server
+   ↓
+Auth Server (validation)
+```
+
+---
+
+## 15. 🧪 Testing
+
+### Tools
+
+* JUnit → unit testing
+* Mockito → mock dependencies
+* REST Assured → API testing
+* Testcontainers → real DB testing in Docker
+
+👉 Use TDD approach where possible
+
+---
+
+## 16. 🧱 Architecture Patterns
+
+* CQRS (Command Query Responsibility Segregation)
+* Event-driven systems
+* Domain-driven design
+
+Reference: Refactoring Guru Design Patterns
+
+---
+
+## 17. 🧪 Practical Project Idea
+
+### Todo Management System
+
+Features:
+
+* Users
+* Todos (CRUD)
+* Admin role
+* Authentication
+
+### Stack
+
+* Spring Boot
+* PostgreSQL (Docker)
+* Spring Security (OAuth)
+
+---
+
+## 18. ⚡ Additional Learning
+
+* gRPC (high-performance APIs)
+* Rust (systems programming)
+* Kafka benchmarking (latency, throughput tuning)
+
+---
+
+## 19. 🧠 System Design Practice
+
+* Whiteboard tool:
+
+  * Excalidraw
+
+---
+
+# ✅ Key Takeaways
+
+* Learn **patterns over tools**
+* Microservices = distributed system problems
+* Prioritize:
+
+  * Performance
+  * Resilience
+  * Observability
+* Always think in:
+
+  * Trade-offs (CAP theorem)
+  * Scalability
+  * Failure handling
+
