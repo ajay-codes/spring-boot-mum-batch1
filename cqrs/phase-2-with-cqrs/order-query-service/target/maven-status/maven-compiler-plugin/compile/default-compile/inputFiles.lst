@@ -1,0 +1,9 @@
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/OrderQueryServiceApplication.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/config/CassandraConfig.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/consumer/OrderEventConsumer.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/dto/OrderResponse.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/entity/OrderReadModel.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/event/OrderEvent.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/repository/OrderReadModelRepository.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/service/OrderQueryService.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-2-with-cqrs/order-query-service/src/main/java/com/example/orderquery/web/OrderQueryController.java

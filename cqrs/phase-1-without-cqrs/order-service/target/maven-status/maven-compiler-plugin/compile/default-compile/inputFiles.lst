@@ -1,0 +1,9 @@
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/OrderServiceApplication.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/dto/CreateOrderRequest.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/dto/OrderResponse.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/dto/UpdateStatusRequest.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/entity/Order.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/entity/OrderStatus.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/repository/OrderRepository.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/service/OrderService.java
+/Users/nag/spring-boot-mum-batch1/cqrs/phase-1-without-cqrs/order-service/src/main/java/com/example/orderservice/web/OrderController.java
