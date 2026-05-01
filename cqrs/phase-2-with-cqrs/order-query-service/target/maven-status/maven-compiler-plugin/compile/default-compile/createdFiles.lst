@@ -1,0 +1,12 @@
+com/example/orderquery/dto/OrderResponse.class
+com/example/orderquery/OrderQueryServiceApplication.class
+com/example/orderquery/repository/OrderReadModelRepository.class
+com/example/orderquery/web/OrderQueryController.class
+com/example/orderquery/event/OrderEvent.class
+com/example/orderquery/service/OrderQueryService.class
+com/example/orderquery/entity/OrderReadModel.class
+com/example/orderquery/consumer/OrderEventConsumer.class
+com/example/orderquery/event/OrderEvent$OrderEventBuilder.class
+com/example/orderquery/dto/OrderResponse$OrderResponseBuilder.class
+com/example/orderquery/config/CassandraConfig.class
+com/example/orderquery/entity/OrderReadModel$OrderReadModelBuilder.class
